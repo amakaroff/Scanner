@@ -23,13 +23,13 @@ public class Scanners {
 
     private static TargetScanner targetScanner;
 
-    public Scanners(String packageName) {
+    Scanners(String packageName) {
         jarScanner = new JarScanner(packageName);
         targetScanner = new TargetScanner(packageName);
         systemPathScanner = new SystemPathScanner(packageName);
     }
 
-    public List<String> systemScan() {
+    List<String> systemScan() {
         List<String> classNames = systemPathScanner.scan(JAVA_HOME);
 
         if (classNames.isEmpty()) {
@@ -39,7 +39,7 @@ public class Scanners {
         return classNames;
     }
 
-    public List<String> localScan(URL packageURL) {
+    List<String> localScan(URL packageURL) {
         List<String> classNames = new ArrayList<String>();
 
         if (StringUtils.isJar(packageURL.getProtocol())) {
