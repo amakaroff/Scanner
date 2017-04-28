@@ -20,6 +20,6 @@ public class FilterUtils {
     }
 
     public static boolean classFilter(Class<?> superClass, Class<?> clazz) {
-        return  (clazz.isAssignableFrom(superClass));
+        return (clazz.isAssignableFrom(superClass));
     }
 }

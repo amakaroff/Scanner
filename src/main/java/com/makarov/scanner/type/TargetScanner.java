@@ -1,6 +1,5 @@
 package com.makarov.scanner.type;
 
-
 import com.makarov.scanner.util.StringUtils;
 
 import java.io.File;
@@ -14,7 +13,7 @@ public class TargetScanner {
 
     private String packageName;
 
-    List<String> classNames;
+    private List<String> classNames;
 
     public TargetScanner(String packageName) {
         this.packageName = packageName;

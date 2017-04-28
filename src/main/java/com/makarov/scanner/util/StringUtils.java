@@ -9,11 +9,7 @@ public class StringUtils {
     }
 
     public static String getNormalClassName(String className) {
-        if (className.contains("/")) {
-            return className.replace("/", ".");
-        } else {
-            return className.replace("\\", ".");
-        }
+        return className.replace("/", ".").replace("\\", ".");
     }
 
     public static String getClassName(String fileName, String packageName) {

@@ -31,13 +31,13 @@ public class JarScanner {
         return classNames;
     }
 
-    private Enumeration<JarEntry> unzipJar(URL packageURL, String coding) throws Exception{
+    private Enumeration<JarEntry> unzipJar(URL packageURL, String coding) throws Exception {
         String jarFileName = StringUtils.getJarName(URLDecoder.decode(packageURL.getFile(), coding));
         JarFile jarFile = new JarFile(jarFileName);
         return jarFile.entries();
     }
 
-    public List<String> getEntityFromJarFile(Enumeration<JarEntry> jarEntries) throws Exception {
+    private List<String> getEntityFromJarFile(Enumeration<JarEntry> jarEntries) throws Exception {
         List<String> classNames = new ArrayList<String>();
 
         String entryName;
@@ -46,7 +46,6 @@ public class JarScanner {
             if (entryName.startsWith(packageName) && entryName.length() > packageName.length() + 5) {
                 if (StringUtils.isClass(entryName)) {
                     entryName = StringUtils.getNormalClassName(entryName);
-                    System.out.println(StringUtils.removeClassExpansion(entryName));
                     classNames.add(StringUtils.removeClassExpansion(entryName));
                 }
             }
