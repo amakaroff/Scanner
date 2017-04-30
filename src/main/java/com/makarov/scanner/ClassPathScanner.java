@@ -18,19 +18,17 @@ public class ClassPathScanner {
         String canonicalPackageName = StringUtils.getCanonicalPackageName(packageName);
         scanners = new Scanners(canonicalPackageName);
 
-        List<String> classNames = chooserScan(canonicalPackageName);
+        List<String> classNames;
 
-        return new ClassPathScanner().new Scanner(transform(classNames));
-    }
-
-    private static List<String> chooserScan(String packageName) {
         URL packageURL = Thread.currentThread().getContextClassLoader().getResource(packageName);
 
         if (packageURL == null) {
-            return scanners.systemScan();
+            classNames = scanners.systemScan();
         } else {
-            return scanners.localScan(packageURL);
+            classNames = scanners.localScan(packageURL);
         }
+
+        return new ClassPathScanner().new Scanner(transform(classNames));
     }
 
     private static List<Class<?>> transform(List<String> classNames) {
@@ -40,7 +38,7 @@ public class ClassPathScanner {
             try {
                 classes.add(contextClassLoader.loadClass(className));
             } catch (Throwable exception) {
-                System.err.println(exception.getMessage() + " class is not found");
+                //Logging
             }
         }
 
