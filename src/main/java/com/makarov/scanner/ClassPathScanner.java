@@ -67,7 +67,7 @@ public class ClassPathScanner {
             return new Scanner(classes);
         }
 
-        public Scanner nameFilter(String name) {
+        public Scanner filterByName(String name) {
             List<Class<?>> classes = new ArrayList<Class<?>>();
 
             for (Class<?> clazz : this.classes) {
@@ -79,7 +79,7 @@ public class ClassPathScanner {
             return new Scanner(classes);
         }
 
-        public Scanner classFilter(Class<?> superClazz) {
+        public Scanner filterBySuperClass(Class<?> superClazz) {
             List<Class<?>> classes = new ArrayList<Class<?>>();
 
             for (Class<?> clazz : this.classes) {
