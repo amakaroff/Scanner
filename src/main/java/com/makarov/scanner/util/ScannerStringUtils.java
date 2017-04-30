@@ -1,11 +1,9 @@
 package com.makarov.scanner.util;
 
-
-public class StringUtils {
+public class ScannerStringUtils {
 
     public static String getCanonicalPackageName(String packageName) {
-        String newName = packageName.replace(".", "/");
-        return !newName.contains("/") ? newName + "/" : newName;
+        return packageName.replace(".", "/") + "/";
     }
 
     public static String getNormalClassName(String className) {
@@ -22,7 +20,7 @@ public class StringUtils {
     }
 
     public static String removeClassExpansion(String className) {
-        return className.substring(0, className.lastIndexOf('.'));
+        return className.substring(0, className.lastIndexOf(".class"));
     }
 
     public static String getJarName(String fileName) {
@@ -30,7 +28,7 @@ public class StringUtils {
     }
 
     public static boolean isClass(String fileName) {
-        return fileName.substring(fileName.lastIndexOf(".") + 1).equals("class");
+        return fileName.contains(".class");
     }
 
     public static boolean isJar(String fileName) {
