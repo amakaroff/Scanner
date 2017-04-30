@@ -1,6 +1,5 @@
 package com.makarov.scanner;
 
-
 import com.makarov.scanner.type.JarScanner;
 import com.makarov.scanner.type.SystemPathScanner;
 import com.makarov.scanner.type.TargetScanner;
@@ -49,7 +48,7 @@ public class Scanners {
                 URI packageURI = new URI(packageURL.toString());
                 classNames = targetScanner.scan(packageURI);
             } catch (Exception exception) {
-                System.err.println(exception.getMessage());
+                //Logging
             }
         }
         return classNames;

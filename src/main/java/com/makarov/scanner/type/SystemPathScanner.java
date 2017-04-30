@@ -10,7 +10,6 @@ import java.util.List;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 
-
 public class SystemPathScanner {
 
     private String packageName;
@@ -26,7 +25,7 @@ public class SystemPathScanner {
         try {
             classNames = folderScanner(folder.getPath());
         } catch (IOException exception) {
-            System.err.println(exception.getMessage() + " can't open this jar");
+            //Logging
         }
 
         return classNames;

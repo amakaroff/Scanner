@@ -28,7 +28,7 @@ public class ClassPathScanner {
             classNames = scanners.localScan(packageURL);
         }
 
-        return new ClassPathScanner().new Scanner(transform(classNames));
+        return new ClassPathScanner().new InnerScanner(transform(classNames));
     }
 
     private static List<Class<?>> transform(List<String> classNames) {
@@ -45,11 +45,11 @@ public class ClassPathScanner {
         return classes;
     }
 
-    public class Scanner {
+    private class InnerScanner implements Scanner {
 
         private List<Class<?>> classes;
 
-        private Scanner(List<Class<?>> classes) {
+        private InnerScanner(List<Class<?>> classes) {
             this.classes = classes;
         }
 
@@ -62,7 +62,7 @@ public class ClassPathScanner {
                 }
             }
 
-            return new Scanner(classes);
+            return new InnerScanner(classes);
         }
 
         public Scanner filterByName(String name) {
@@ -74,7 +74,7 @@ public class ClassPathScanner {
                 }
             }
 
-            return new Scanner(classes);
+            return new InnerScanner(classes);
         }
 
         public Scanner filterBySuperClass(Class<?> superClazz) {
@@ -86,7 +86,7 @@ public class ClassPathScanner {
                 }
             }
 
-            return new Scanner(classes);
+            return new InnerScanner(classes);
         }
 
         public Scanner filter(ClassFilter filter) {
@@ -98,7 +98,7 @@ public class ClassPathScanner {
                 }
             }
 
-            return new Scanner(classes);
+            return new InnerScanner(classes);
         }
 
 
