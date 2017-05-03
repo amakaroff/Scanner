@@ -2,7 +2,7 @@ package com.makarov.scanner;
 
 import com.makarov.scanner.filter.ClassFilter;
 import com.makarov.scanner.util.FilterUtils;
-import com.makarov.scanner.util.StringUtils;
+import com.makarov.scanner.util.ScannerStringUtils;
 
 import java.lang.annotation.Annotation;
 import java.net.URL;
@@ -12,14 +12,11 @@ import java.util.List;
 
 public class ClassPathScanner {
 
-    private static Scanners scanners;
-
     public static Scanner packageScan(String packageName) {
-        String canonicalPackageName = StringUtils.getCanonicalPackageName(packageName);
-        scanners = new Scanners(canonicalPackageName);
+        String canonicalPackageName = ScannerStringUtils.getCanonicalPackageName(packageName);
+        Scanners scanners = new Scanners(canonicalPackageName);
 
         List<String> classNames;
-
         URL packageURL = Thread.currentThread().getContextClassLoader().getResource(packageName);
 
         if (packageURL == null) {
@@ -32,7 +29,7 @@ public class ClassPathScanner {
     }
 
     private static List<Class<?>> transform(List<String> classNames) {
-        List<Class<?>> classes = new ArrayList<Class<?>>();
+        List<Class<?>> classes = new ArrayList<>();
         ClassLoader contextClassLoader = Thread.currentThread().getContextClassLoader();
         for (String className : classNames) {
             try {
@@ -53,52 +50,48 @@ public class ClassPathScanner {
             this.classes = classes;
         }
 
-        public Scanner annotationFilter(Class<? extends Annotation>... annotations) {
-            List<Class<?>> classes = new ArrayList<Class<?>>();
-
-            for (Class<?> clazz : this.classes) {
-                if (FilterUtils.annotationFilter(annotations, clazz)) {
-                    classes.add(clazz);
+        @SafeVarargs
+        public final Scanner filterByAnnotation(Class<? extends Annotation>... annotations) {
+            for (Class<?> clazz : classes) {
+                if (!FilterUtils.isAnnotationsPresent(annotations, clazz)) {
+                    classes.remove(clazz);
                 }
             }
 
-            return new InnerScanner(classes);
+            return this;
         }
 
         public Scanner filterByName(String name) {
-            List<Class<?>> classes = new ArrayList<Class<?>>();
-
-            for (Class<?> clazz : this.classes) {
-                if (FilterUtils.classNameFilter(name, clazz)) {
-                    classes.add(clazz);
+            List<Class<?>> filteredClasses = new ArrayList<>();
+            for (Class<?> clazz : classes) {
+                if (FilterUtils.isClassNameContains(name, clazz)) {
+                    filteredClasses.add(clazz);
                 }
             }
 
-            return new InnerScanner(classes);
+            return new InnerScanner(filteredClasses);
         }
 
         public Scanner filterBySuperClass(Class<?> superClazz) {
-            List<Class<?>> classes = new ArrayList<Class<?>>();
-
-            for (Class<?> clazz : this.classes) {
-                if (FilterUtils.classFilter(superClazz, clazz)) {
-                    classes.add(clazz);
+            List<Class<?>> filteredClasses = new ArrayList<>();
+            for (Class<?> clazz : classes) {
+                if (FilterUtils.isAssignableFrom(superClazz, clazz)) {
+                    filteredClasses.add(clazz);
                 }
             }
 
-            return new InnerScanner(classes);
+            return new InnerScanner(filteredClasses);
         }
 
-        public Scanner filter(ClassFilter filter) {
-            List<Class<?>> classes = new ArrayList<Class<?>>();
-
-            for (Class<?> clazz : this.classes) {
-                if (filter.filter(clazz)) {
-                    classes.add(clazz);
+        public Scanner filterByCustomFilter(ClassFilter classFilter) {
+            List<Class<?>> filteredClasses = new ArrayList<>();
+            for (Class<?> clazz : classes) {
+                if (classFilter.isFiltered(clazz)) {
+                    filteredClasses.add(clazz);
                 }
             }
 
-            return new InnerScanner(classes);
+            return new InnerScanner(filteredClasses);
         }
 
 

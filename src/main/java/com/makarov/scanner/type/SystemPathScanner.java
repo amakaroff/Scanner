@@ -1,6 +1,6 @@
 package com.makarov.scanner.type;
 
-import com.makarov.scanner.util.StringUtils;
+import com.makarov.scanner.util.ScannerStringUtils;
 
 import java.io.File;
 import java.io.IOException;
@@ -21,33 +21,32 @@ public class SystemPathScanner {
     public List<String> scan(String systemPath) {
         File folder = new File(systemPath);
 
-        List<String> classNames = new ArrayList<String>();
-        try {
-            classNames = folderScanner(folder.getPath());
-        } catch (IOException exception) {
-            //Logging
-        }
-
-        return classNames;
+        return folderScanner(folder.getPath());
     }
 
-    private List<String> getEntityFromJarFile(File jarFile) throws IOException {
-        List<String> classNames = new ArrayList<String>();
-        Enumeration<JarEntry> jarEntries = new JarFile(jarFile.getAbsoluteFile()).entries();
+    private List<String> getEntityFromJarFile(File jarFile) {
+        List<String> classNames = new ArrayList<>();
+        Enumeration<JarEntry> jarEntries;
+        try {
+            jarEntries = new JarFile(jarFile.getAbsoluteFile()).entries();
+        } catch (IOException exception) {
+            //Logging
+            return new ArrayList<>();
+        }
 
         while (jarEntries.hasMoreElements()) {
             String entryName = jarEntries.nextElement().getName();
-            if (entryName.contains(packageName) && StringUtils.isClass(entryName)) {
-                entryName = StringUtils.getNormalClassName(entryName);
-                classNames.add(StringUtils.removeClassExpansion(entryName));
+            if (entryName.contains(packageName) && ScannerStringUtils.isClass(entryName)) {
+                entryName = ScannerStringUtils.getNormalClassName(entryName);
+                classNames.add(ScannerStringUtils.removeClassExpansion(entryName));
             }
         }
 
         return classNames;
     }
 
-    private List<String> folderScanner(String folderPath) throws IOException {
-        List<String> classNames = new ArrayList<String>();
+    private List<String> folderScanner(String folderPath) {
+        List<String> classNames = new ArrayList<>();
         File folder = new File(folderPath);
         File[] files = folder.listFiles();
 
@@ -55,7 +54,7 @@ public class SystemPathScanner {
             for (File file : files) {
                 if (!file.isFile()) {
                     classNames.addAll(folderScanner(file.getPath()));
-                } else if (StringUtils.isJar(file.getName())) {
+                } else if (ScannerStringUtils.isJar(file.getName())) {
                     classNames.addAll(getEntityFromJarFile(file));
                 }
             }

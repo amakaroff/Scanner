@@ -2,7 +2,6 @@ package com.makarov.scanner.util;
 
 import java.lang.annotation.Annotation;
 
-
 public class FilterUtils {
 
     public static boolean isAnnotationsPresent(Class<? extends Annotation>[] annotations, Class<?> clazz) {

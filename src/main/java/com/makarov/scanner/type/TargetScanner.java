@@ -1,6 +1,6 @@
 package com.makarov.scanner.type;
 
-import com.makarov.scanner.util.StringUtils;
+import com.makarov.scanner.util.ScannerStringUtils;
 
 import java.io.File;
 import java.net.MalformedURLException;
@@ -17,7 +17,7 @@ public class TargetScanner {
 
     public TargetScanner(String packageName) {
         this.packageName = packageName;
-        classNames = new ArrayList<String>();
+        classNames = new ArrayList<>();
     }
 
     public List<String> scan(URI packageURI) throws URISyntaxException, MalformedURLException {
@@ -29,7 +29,7 @@ public class TargetScanner {
         if (content != null) {
             for (File file : content) {
                 if (file.isFile()) {
-                    classNames.add(StringUtils.getClassName(file.getPath(), packageName));
+                    classNames.add(ScannerStringUtils.getClassName(file.getPath(), packageName));
                 } else {
                     scan(file.toURI());
                 }

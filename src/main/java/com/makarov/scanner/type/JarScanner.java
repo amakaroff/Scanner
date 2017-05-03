@@ -1,6 +1,6 @@
 package com.makarov.scanner.type;
 
-import com.makarov.scanner.util.StringUtils;
+import com.makarov.scanner.util.ScannerStringUtils;
 
 import java.net.URL;
 import java.net.URLDecoder;
@@ -19,34 +19,35 @@ public class JarScanner {
     }
 
     public List<String> scan(URL packageURL) {
-        List<String> classNames = new ArrayList<String>();
+        List<String> classNames = new ArrayList<>();
 
         try {
             Enumeration<JarEntry> jarEntries = unzipJar(packageURL, "UTF-8");
             classNames.addAll(getEntityFromJarFile(jarEntries));
         } catch (Exception exception) {
-            System.err.println(exception.getMessage());
+            //Logging
         }
 
         return classNames;
     }
 
     private Enumeration<JarEntry> unzipJar(URL packageURL, String coding) throws Exception {
-        String jarFileName = StringUtils.getJarName(URLDecoder.decode(packageURL.getFile(), coding));
+        String jarFileName = ScannerStringUtils.getJarName(URLDecoder.decode(packageURL.getFile(), coding));
         JarFile jarFile = new JarFile(jarFileName);
         return jarFile.entries();
     }
 
     private List<String> getEntityFromJarFile(Enumeration<JarEntry> jarEntries) throws Exception {
-        List<String> classNames = new ArrayList<String>();
+        List<String> classNames = new ArrayList<>();
 
         String entryName;
         while (jarEntries.hasMoreElements()) {
             entryName = jarEntries.nextElement().getName();
+            System.out.println(entryName);
             if (entryName.startsWith(packageName) && entryName.length() > packageName.length() + 5) {
-                if (StringUtils.isClass(entryName)) {
-                    entryName = StringUtils.getNormalClassName(entryName);
-                    classNames.add(StringUtils.removeClassExpansion(entryName));
+                if (ScannerStringUtils.isClass(entryName)) {
+                    entryName = ScannerStringUtils.getNormalClassName(entryName);
+                    classNames.add(ScannerStringUtils.removeClassExpansion(entryName));
                 }
             }
         }

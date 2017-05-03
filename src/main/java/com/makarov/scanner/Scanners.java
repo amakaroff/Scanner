@@ -3,7 +3,7 @@ package com.makarov.scanner;
 import com.makarov.scanner.type.JarScanner;
 import com.makarov.scanner.type.SystemPathScanner;
 import com.makarov.scanner.type.TargetScanner;
-import com.makarov.scanner.util.StringUtils;
+import com.makarov.scanner.util.ScannerStringUtils;
 
 import java.net.URI;
 import java.net.URL;
@@ -39,9 +39,9 @@ public class Scanners {
     }
 
     List<String> localScan(URL packageURL) {
-        List<String> classNames = new ArrayList<String>();
+        List<String> classNames = new ArrayList<>();
 
-        if (StringUtils.isJar(packageURL.getProtocol())) {
+        if (ScannerStringUtils.isJar(packageURL.getProtocol())) {
             classNames = jarScanner.scan(packageURL);
         } else {
             try {
