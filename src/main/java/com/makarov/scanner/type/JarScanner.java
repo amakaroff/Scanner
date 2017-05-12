@@ -1,7 +1,10 @@
 package com.makarov.scanner.type;
 
 import com.makarov.scanner.util.ScannerStringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
+import java.io.File;
 import java.net.URL;
 import java.net.URLDecoder;
 import java.util.ArrayList;
@@ -11,6 +14,8 @@ import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 
 public class JarScanner {
+
+    private static final Logger logger = LoggerFactory.getLogger(JarScanner.class);
 
     private String packageName;
 
@@ -25,7 +30,7 @@ public class JarScanner {
             Enumeration<JarEntry> jarEntries = unzipJar(packageURL, "UTF-8");
             classNames.addAll(getEntityFromJarFile(jarEntries));
         } catch (Exception exception) {
-            //Logging
+            logger.error("Can't scan jar file: {}", packageURL.getFile(), exception);
         }
 
         return classNames;

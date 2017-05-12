@@ -1,16 +1,20 @@
 package com.makarov.scanner;
 
 import com.makarov.scanner.filter.ClassFilter;
+import com.makarov.scanner.type.FullClassPathScanner;
 import com.makarov.scanner.util.FilterUtils;
 import com.makarov.scanner.util.ScannerStringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.lang.annotation.Annotation;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 
-
 public class ClassPathScanner {
+
+    private static final Logger logger = LoggerFactory.getLogger(ClassPathScanner.class);
 
     public static Scanner packageScan(String packageName) {
         String canonicalPackageName = ScannerStringUtils.getCanonicalPackageName(packageName);
@@ -28,6 +32,17 @@ public class ClassPathScanner {
         return new ClassPathScanner().new InnerScanner(transform(classNames));
     }
 
+    public static Scanner classPathScan() {
+        List<String> classNames = new ArrayList<>();
+        String[] classPath = System.getProperty("java.class.path").split(";");
+        FullClassPathScanner fullScanner = new FullClassPathScanner();
+        for (String fileName : classPath) {
+            classNames.addAll(fullScanner.scan(fileName));
+        }
+
+        return new ClassPathScanner().new InnerScanner(transform(classNames));
+    }
+
     private static List<Class<?>> transform(List<String> classNames) {
         List<Class<?>> classes = new ArrayList<>();
         ClassLoader contextClassLoader = Thread.currentThread().getContextClassLoader();
@@ -35,7 +50,7 @@ public class ClassPathScanner {
             try {
                 classes.add(contextClassLoader.loadClass(className));
             } catch (Throwable exception) {
-                //Logging
+                logger.error("Class not found: ", exception);
             }
         }
 

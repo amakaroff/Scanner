@@ -1,6 +1,8 @@
 package com.makarov.scanner.type;
 
 import com.makarov.scanner.util.ScannerStringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.IOException;
@@ -11,6 +13,8 @@ import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 
 public class SystemPathScanner {
+
+    private static final Logger logger = LoggerFactory.getLogger(FullClassPathScanner.class);
 
     private String packageName;
 
@@ -30,7 +34,7 @@ public class SystemPathScanner {
         try {
             jarEntries = new JarFile(jarFile.getAbsoluteFile()).entries();
         } catch (IOException exception) {
-            //Logging
+            logger.error("Can't scan jar: {}", jarFile.getName(), exception);
             return new ArrayList<>();
         }
 
