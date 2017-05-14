@@ -1,56 +1,82 @@
 package com.makarov.scanner;
 
-import com.makarov.scanner.type.JarScanner;
-import com.makarov.scanner.type.SystemPathScanner;
-import com.makarov.scanner.type.TargetScanner;
-import com.makarov.scanner.util.ScannerStringUtils;
+import com.makarov.scanner.type.FullClassPathScanner;
 
-import java.net.URI;
-import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 
 public class Scanners {
 
-    private static final String JAVA_HOME = System.getenv("JAVA_HOME") + "\\jre\\lib\\";
+    private FullClassPathScanner scanner;
 
-    private static final String MAVEN_HOME = System.getProperty("user.home") + "\\.m2";
-
-    private static JarScanner jarScanner;
-
-    private static SystemPathScanner systemPathScanner;
-
-    private static TargetScanner targetScanner;
-
-    Scanners(String packageName) {
-        jarScanner = new JarScanner(packageName);
-        targetScanner = new TargetScanner(packageName);
-        systemPathScanner = new SystemPathScanner(packageName);
+    Scanners() {
+        this.scanner = new FullClassPathScanner();
     }
 
-    List<String> systemScan() {
-        List<String> classNames = systemPathScanner.scan(JAVA_HOME);
-
-        if (classNames.isEmpty()) {
-            classNames = systemPathScanner.scan(MAVEN_HOME);
-        }
-
-        return classNames;
-    }
-
-    List<String> localScan(URL packageURL) {
+    List<String> getClassNameList() {
         List<String> classNames = new ArrayList<>();
 
-        if (ScannerStringUtils.isJar(packageURL.getProtocol())) {
-            classNames = jarScanner.scan(packageURL);
-        } else {
-            try {
-                URI packageURI = new URI(packageURL.toString());
-                classNames = targetScanner.scan(packageURI);
-            } catch (Exception exception) {
-                //Logging
-            }
+        String[] classPath = System.getProperty("java.class.path").split(";");
+        for (String fileName : classPath) {
+            classNames.addAll(scanner.scan(fileName));
         }
+
         return classNames;
     }
+
+    List<String> getFullProjectClassNameList() {
+        List<String> classNames = new ArrayList<>();
+
+        String[] classPath = System.getProperty("java.class.path").split(";");
+        for (String fileName : classPath) {
+            String fileSimpleName = fileName.substring(fileName.lastIndexOf("\\") + 1, fileName.length());
+            if (!systemJars.contains(fileSimpleName)) {
+                classNames.addAll(scanner.scan(fileName));
+            }
+        }
+
+        return classNames;
+    }
+
+    List<String> getProjectClassNameList() {
+        List<String> classNames = new ArrayList<>();
+
+        String[] classPath = System.getProperty("java.class.path").split(";");
+        for (String fileName : classPath) {
+            if (!fileName.contains(".jar")) {
+                classNames.addAll(scanner.scan(fileName));
+            }
+        }
+
+        return classNames;
+    }
+
+    private List<String> systemJars = new ArrayList<String>() {
+        {
+            add("charsets.jar");
+            add("deploy.jar");
+            add("javaws.jar");
+            add("jce.jar");
+            add("jfr.jar");
+            add("jfxswt.jar");
+            add("jsse.jar");
+            add("management-agent.jar");
+            add("plugin.jar");
+            add("resources.jar");
+            add("rt.jar");
+            add("access-bridge-64.jar");
+            add("cldrdata.jar");
+            add("dnsns.jar");
+            add("jaccess.jar");
+            add("jfxrt.jar");
+            add("localedata.jar");
+            add("nashorn.jar");
+            add("sunec.jar");
+            add("sunjce_provider.jar");
+            add("sunmscapi.jar");
+            add("sunpkcs11.jar");
+            add("zipfs.jar");
+            add("idea_rt.jar");
+        }
+    };
 }

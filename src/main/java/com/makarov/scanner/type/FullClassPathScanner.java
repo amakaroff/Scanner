@@ -1,6 +1,5 @@
 package com.makarov.scanner.type;
 
-import com.makarov.scanner.util.ScannerStringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -22,14 +21,17 @@ public class FullClassPathScanner {
     public List<String> scan(String filePath) {
         try {
             if (isJar(filePath)) {
-                return getClassNames(unzipJar(new File(filePath)));
+                JarFile jarFile = new JarFile(filePath);
+                return getClassNames(jarFile.entries());
             } else {
                 classFolder = filePath;
                 classNames = new ArrayList<>();
                 return getClassNames(filePath);
             }
         } catch (Exception exception) {
-            logger.error("Can't read file: {}", filePath, exception);
+            if (logger.isDebugEnabled()) {
+                logger.error("Can't read file: {}", filePath, exception);
+            }
         }
 
         return new ArrayList<>();
@@ -40,9 +42,8 @@ public class FullClassPathScanner {
 
         while (entities.hasMoreElements()) {
             String entityName = entities.nextElement().toString();
-            if (ScannerStringUtils.isClass(entityName)) {
-                entityName = ScannerStringUtils.removeClassExpansion(entityName);
-                classNames.add(ScannerStringUtils.getNormalClassName(entityName));
+            if (isClass(entityName)) {
+                classNames.add(normalizeClassName(entityName));
             }
         }
 
@@ -55,10 +56,9 @@ public class FullClassPathScanner {
 
         if (content != null) {
             for (File file : content) {
-                if (file.isFile() && ScannerStringUtils.isClass(file.getName())) {
+                if (file.isFile() && isClass(file.getName())) {
                     String fileName = file.getPath().replace(classFolder, "").substring(1);
-                    fileName = ScannerStringUtils.removeClassExpansion(fileName);
-                    classNames.add(ScannerStringUtils.getNormalClassName(fileName));
+                    classNames.add(normalizeClassName(fileName));
                 } else {
                     getClassNames(file.getPath());
                 }
@@ -68,12 +68,16 @@ public class FullClassPathScanner {
         return classNames;
     }
 
-    private Enumeration<JarEntry> unzipJar(File jarName) throws Exception {
-        JarFile jarFile = new JarFile(jarName);
-        return jarFile.entries();
-    }
-
     private boolean isJar(String fileName) {
         return fileName.contains(".jar");
+    }
+
+    private boolean isClass(String fileName) {
+        return fileName.contains(".class");
+    }
+
+    private String normalizeClassName(String className) {
+        String newClassName = className.replace("/", ".").replace("\\", ".");
+        return newClassName.substring(0, newClassName.lastIndexOf(".class"));
     }
 }

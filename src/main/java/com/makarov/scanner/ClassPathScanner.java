@@ -1,14 +1,11 @@
 package com.makarov.scanner;
 
 import com.makarov.scanner.filter.ClassFilter;
-import com.makarov.scanner.type.FullClassPathScanner;
 import com.makarov.scanner.util.FilterUtils;
-import com.makarov.scanner.util.ScannerStringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.lang.annotation.Annotation;
-import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -16,31 +13,43 @@ public class ClassPathScanner {
 
     private static final Logger logger = LoggerFactory.getLogger(ClassPathScanner.class);
 
-    public static Scanner packageScan(String packageName) {
-        String canonicalPackageName = ScannerStringUtils.getCanonicalPackageName(packageName);
-        Scanners scanners = new Scanners(canonicalPackageName);
+    private static Scanners scanners = new Scanners();
 
-        List<String> classNames;
-        URL packageURL = Thread.currentThread().getContextClassLoader().getResource(packageName);
-
-        if (packageURL == null) {
-            classNames = scanners.systemScan();
-        } else {
-            classNames = scanners.localScan(packageURL);
-        }
-
-        return new ClassPathScanner().new InnerScanner(transform(classNames));
+    public static Filter fullScan() {
+        List<String> classNames = scanners.getClassNameList();
+        return new ClassPathScanner().new InnerFilter(transform(classNames));
     }
 
-    public static Scanner classPathScan() {
+    public static Filter fullPackageScan(String packageName) {
         List<String> classNames = new ArrayList<>();
-        String[] classPath = System.getProperty("java.class.path").split(";");
-        FullClassPathScanner fullScanner = new FullClassPathScanner();
-        for (String fileName : classPath) {
-            classNames.addAll(fullScanner.scan(fileName));
+        for (String className : scanners.getClassNameList()) {
+            if (className.contains(packageName)) {
+                classNames.add(className);
+            }
         }
 
-        return new ClassPathScanner().new InnerScanner(transform(classNames));
+        return new ClassPathScanner().new InnerFilter(transform(classNames));
+    }
+
+    public static Filter fullProjectScan() {
+        List<String> classNames = scanners.getProjectClassNameList();
+        return new ClassPathScanner().new InnerFilter(transform(classNames));
+    }
+
+    public static Filter fullProjectPackageScan(String packageName) {
+        List<String> classNames = new ArrayList<>();
+        for (String className : scanners.getProjectClassNameList()) {
+            if (className.contains(packageName)) {
+                classNames.add(className);
+            }
+        }
+
+        return new ClassPathScanner().new InnerFilter(transform(classNames));
+    }
+
+    public static Filter projectScan() {
+        List<String> classNames = scanners.getProjectClassNameList();
+        return new ClassPathScanner().new InnerFilter(transform(classNames));
     }
 
     private static List<Class<?>> transform(List<String> classNames) {
@@ -50,23 +59,25 @@ public class ClassPathScanner {
             try {
                 classes.add(contextClassLoader.loadClass(className));
             } catch (Throwable exception) {
-                logger.error("Class not found: ", exception);
+                if (logger.isDebugEnabled()) {
+                    logger.error("Class not found: ", exception);
+                }
             }
         }
 
         return classes;
     }
 
-    private class InnerScanner implements Scanner {
+    private class InnerFilter implements Filter {
 
         private List<Class<?>> classes;
 
-        private InnerScanner(List<Class<?>> classes) {
+        private InnerFilter(List<Class<?>> classes) {
             this.classes = classes;
         }
 
         @SafeVarargs
-        public final Scanner filterByAnnotation(Class<? extends Annotation>... annotations) {
+        public final Filter filterByAnnotation(Class<? extends Annotation>... annotations) {
             for (Class<?> clazz : classes) {
                 if (!FilterUtils.isAnnotationsPresent(annotations, clazz)) {
                     classes.remove(clazz);
@@ -76,7 +87,7 @@ public class ClassPathScanner {
             return this;
         }
 
-        public Scanner filterByName(String name) {
+        public Filter filterByName(String name) {
             List<Class<?>> filteredClasses = new ArrayList<>();
             for (Class<?> clazz : classes) {
                 if (FilterUtils.isClassNameContains(name, clazz)) {
@@ -84,10 +95,10 @@ public class ClassPathScanner {
                 }
             }
 
-            return new InnerScanner(filteredClasses);
+            return new InnerFilter(filteredClasses);
         }
 
-        public Scanner filterBySuperClass(Class<?> superClazz) {
+        public Filter filterBySuperClass(Class<?> superClazz) {
             List<Class<?>> filteredClasses = new ArrayList<>();
             for (Class<?> clazz : classes) {
                 if (FilterUtils.isAssignableFrom(superClazz, clazz)) {
@@ -95,10 +106,10 @@ public class ClassPathScanner {
                 }
             }
 
-            return new InnerScanner(filteredClasses);
+            return new InnerFilter(filteredClasses);
         }
 
-        public Scanner filterByCustomFilter(ClassFilter classFilter) {
+        public Filter filterByCustomFilter(ClassFilter classFilter) {
             List<Class<?>> filteredClasses = new ArrayList<>();
             for (Class<?> clazz : classes) {
                 if (classFilter.isFiltered(clazz)) {
@@ -106,7 +117,7 @@ public class ClassPathScanner {
                 }
             }
 
-            return new InnerScanner(filteredClasses);
+            return new InnerFilter(filteredClasses);
         }
 
 
