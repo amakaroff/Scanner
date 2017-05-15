@@ -5,6 +5,7 @@ import java.util.List;
 
 public interface Filter {
 
+    @SuppressWarnings("unchecked")
     Filter filterByAnnotation(Class<? extends Annotation>... annotations);
 
     Filter filterByName(String name);

@@ -21,7 +21,7 @@ public class ClassPathScanner {
         return new ClassPathScanner().new InnerFilter(transform(classNames));
     }
 
-    public static Filter fullPackageScan(String packageName) {
+    public static Filter fullScan(String packageName) {
         List<String> classNames = new ArrayList<>();
         for (String className : scanners.getClassNameList()) {
             if (className.contains(packageName)) {
@@ -33,11 +33,11 @@ public class ClassPathScanner {
     }
 
     public static Filter fullProjectScan() {
-        List<String> classNames = scanners.getProjectClassNameList();
+        List<String> classNames = scanners.getFullProjectClassNameList();
         return new ClassPathScanner().new InnerFilter(transform(classNames));
     }
 
-    public static Filter fullProjectPackageScan(String packageName) {
+    public static Filter fullProjectScan(String packageName) {
         List<String> classNames = new ArrayList<>();
         for (String className : scanners.getProjectClassNameList()) {
             if (className.contains(packageName)) {
@@ -79,13 +79,14 @@ public class ClassPathScanner {
 
         @SafeVarargs
         public final Filter filterByAnnotation(Class<? extends Annotation>... annotations) {
+            List<Class<?>> filteredClasses = new ArrayList<>();
             for (Class<?> clazz : classes) {
-                if (!FilterUtils.isAnnotationsPresent(annotations, clazz)) {
-                    classes.remove(clazz);
+                if (FilterUtils.isAnnotationsPresent(annotations, clazz)) {
+                    filteredClasses.add(clazz);
                 }
             }
 
-            return this;
+            return new InnerFilter(filteredClasses);
         }
 
         public Filter filterByName(String name) {
