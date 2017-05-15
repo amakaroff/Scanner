@@ -11,6 +11,11 @@ public class FilePathScanner {
 
     public static List<File> findFiles(String fileName, String fileExtension) {
         List<File> files = new ArrayList<>();
+
+        if (fileName == null) {
+            fileName = "";
+        }
+
         FileScanner scanner = new FileScanner(fileName, fileExtension);
         for (String filePaths : scanner.getFilePaths()) {
             files.add(new File(filePaths));

@@ -58,7 +58,7 @@ public class FullClassPathScanner {
         if (content != null) {
             for (File file : content) {
                 if (file.isFile() && FileStringUtils.isClass(file.getName())) {
-                    String fileName = file.getPath().replace(classFolder, "").substring(1);
+                    String fileName = FileStringUtils.substringPath(file.getPath(), classFolder);
                     classNames.add(FileStringUtils.normalizeClassName(fileName));
                 } else {
                     getClassNames(file.getPath());
