@@ -122,7 +122,6 @@ public class ClassPathScanner {
             return new InnerFilter(filteredClasses);
         }
 
-
         public List<Class<?>> getClasses() {
             return classes;
         }

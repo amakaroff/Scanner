@@ -45,7 +45,7 @@ public class FileScanner {
     }
 
     private String getProjectFolder() {
-        String[] classPath = System.getProperty("java.class.path").split(";");
+        String[] classPath = FileStringUtils.getClassPathElements();
         String defaultFolder = "";
         for (String fileName : classPath) {
             if (!FileStringUtils.isJar(fileName)) {

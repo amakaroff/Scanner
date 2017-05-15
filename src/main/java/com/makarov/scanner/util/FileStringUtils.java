@@ -75,15 +75,15 @@ public class FileStringUtils {
         }
     }
 
-    public static String substringPath(String fileName, String path) {
-        return fileName.replace(path, "").substring(1);
-    }
-
     public static String[] getClassPathElements() {
         return System.getProperty("java.class.path").split(";");
     }
 
     public static boolean isSystemJar(String file) {
         return systemJars.contains(getSimpleFileName(file));
+    }
+
+    public static String substringPath(String fileName, String path) {
+        return fileName.replace(path, "").substring(1);
     }
 }

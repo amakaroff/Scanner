@@ -1,6 +1,5 @@
 package com.makarov.scanner;
 
-
 import com.makarov.scanner.type.FileScanner;
 
 import java.io.File;
