@@ -1,6 +1,8 @@
 package com.makarov.scanner.type;
 
 
+import com.makarov.scanner.util.FileStringUtils;
+
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
@@ -31,8 +33,8 @@ public class FileScanner {
             for (File file : content) {
                 if (file.isFile()) {
                     String fileName = file.getName();
-                    if (getFileExtension(fileName).equals(fileExtension)
-                            && getFileName(fileName).contains(this.fileName)) {
+                    if (FileStringUtils.getFileExtension(fileName).equalsIgnoreCase(fileExtension)
+                            && FileStringUtils.getFileName(fileName).contains(this.fileName)) {
                         filePaths.add(file.getPath());
                     }
                 } else {
@@ -46,19 +48,11 @@ public class FileScanner {
         String[] classPath = System.getProperty("java.class.path").split(";");
         String defaultFolder = "";
         for (String fileName : classPath) {
-            if (!getFileExtension(fileName).equals("jar")) {
+            if (!FileStringUtils.isJar(fileName)) {
                 defaultFolder = fileName;
             }
         }
 
         return defaultFolder;
-    }
-
-    private String getFileExtension(String fileName) {
-        return fileName.substring(fileName.lastIndexOf(".") + 1);
-    }
-
-    private String getFileName(String fileFullName) {
-        return fileFullName.substring(fileFullName.lastIndexOf("/") + 1, fileFullName.lastIndexOf("."));
     }
 }

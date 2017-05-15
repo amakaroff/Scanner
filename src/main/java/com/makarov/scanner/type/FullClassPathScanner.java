@@ -1,5 +1,6 @@
 package com.makarov.scanner.type;
 
+import com.makarov.scanner.util.FileStringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -20,7 +21,7 @@ public class FullClassPathScanner {
 
     public List<String> scan(String filePath) {
         try {
-            if (isJar(filePath)) {
+            if (FileStringUtils.isJar(filePath)) {
                 JarFile jarFile = new JarFile(filePath);
                 return getClassNames(jarFile.entries());
             } else {
@@ -42,8 +43,8 @@ public class FullClassPathScanner {
 
         while (entities.hasMoreElements()) {
             String entityName = entities.nextElement().toString();
-            if (isClass(entityName)) {
-                classNames.add(normalizeClassName(entityName));
+            if (FileStringUtils.isClass(entityName)) {
+                classNames.add(FileStringUtils.normalizeClassName(entityName));
             }
         }
 
@@ -56,9 +57,9 @@ public class FullClassPathScanner {
 
         if (content != null) {
             for (File file : content) {
-                if (file.isFile() && isClass(file.getName())) {
+                if (file.isFile() && FileStringUtils.isClass(file.getName())) {
                     String fileName = file.getPath().replace(classFolder, "").substring(1);
-                    classNames.add(normalizeClassName(fileName));
+                    classNames.add(FileStringUtils.normalizeClassName(fileName));
                 } else {
                     getClassNames(file.getPath());
                 }
@@ -66,18 +67,5 @@ public class FullClassPathScanner {
         }
 
         return classNames;
-    }
-
-    private boolean isJar(String fileName) {
-        return fileName.contains(".jar");
-    }
-
-    private boolean isClass(String fileName) {
-        return fileName.contains(".class");
-    }
-
-    private String normalizeClassName(String className) {
-        String newClassName = className.replace("/", ".").replace("\\", ".");
-        return newClassName.substring(0, newClassName.lastIndexOf(".class"));
     }
 }

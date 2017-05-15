@@ -1,6 +1,7 @@
 package com.makarov.scanner;
 
 import com.makarov.scanner.filter.ClassFilter;
+import com.makarov.scanner.filter.Filter;
 import com.makarov.scanner.util.FilterUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

@@ -1,6 +1,4 @@
-package com.makarov.scanner;
-
-import com.makarov.scanner.filter.ClassFilter;
+package com.makarov.scanner.filter;
 
 import java.lang.annotation.Annotation;
 import java.util.List;
